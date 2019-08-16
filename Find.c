@@ -3,8 +3,12 @@
 
 int main()
 {
-    FILE  * file = fopen("text.txt", "r");
+    struct TextObj text = readFile("text.txt");
+    printf("\nSize: %d\n", text.size);
+    printf("\nLines: %d\n\n", text.lines);
 
-    fclose(file);
-    return 0;
+    for(int i = 0; i<4110; i++)
+    {
+        printf("%c", text.textarray[i]);
+    }
 }
