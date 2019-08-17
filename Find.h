@@ -10,6 +10,12 @@
         printf("ERROR");
     };
 
+    struct Interval
+    {
+        int start;
+        int end;
+    };
+
     struct TextObj
     {
         int size;
@@ -48,7 +54,7 @@
             }
             
             struct TextObj filetext;
-            filetext.size = size;
+            filetext.size = size + 1;
             filetext.lines = lines;
             filetext.textarray = textarray;
             return filetext;

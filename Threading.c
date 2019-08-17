@@ -1,7 +1,15 @@
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <sched.h>
 #include <sys/wait.h>
 #include "Find.h"
+
+#define STACK 1024*64
+
+void createThread(void *message);
+int find(void *interval);
 
 int main()
 {
@@ -35,6 +43,66 @@ int main()
     }
 
     struct TextObj text = readFile("text.txt");
-    printf("%d characters, %d threads\n", text.size, threads);
+    int length = text.size / threads - 1;
+    int rest     = text.size % threads;
+
+    int startpos;
+    int endpos = -1;
+    for (int i=0; i<threads; i++)
+    {
+        startpos = endpos + 1;
+        endpos = startpos + length;
+        if (rest > 0)
+        {
+            endpos++;
+            rest--;
+        }
+
+        struct Interval *malloc_container = 
+        (struct Interval *) malloc(sizeof(struct Interval));
+
+        struct Interval interval;
+        interval.start = startpos;
+        interval.end   = endpos;
+
+        malloc_container = &interval;
+        createThread(malloc_container);
+    }
+    return 0;
+}
+
+void createThread(void *message)
+{
+    void *stack;
+    pid_t pid;
+
+    stack = malloc(STACK);
+    if (stack == 0) {
+        perror("No stack allocation");
+        exit(1);
+    }
+
+    pid = clone(*find, stack + STACK, SIGCHLD | CLONE_VM, message);
+
+    if (pid == -1)
+    {
+        perror("clone");
+        exit(2);
+    }
+
+    wait(NULL);
+    free(stack);
+}
+
+int find(void *container)
+{
+    struct Interval *interval;
+    interval = (struct Interval *) container;
+
+    int start = interval->start;
+    int end   = interval->end;
+
+    printf("%d\n", start);
+    printf("%d\n", end);
     return 0;
 }
