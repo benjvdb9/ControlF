@@ -3,3 +3,7 @@
 => Problem solved by using fgets instead of scanf due to
 fgets innate overflow protection. Also allows for whitespaces!
 according to https://stackoverflow.com/questions/1247989/how-do-you-allow-spaces-to-be-entered-using-scanf
+
+-é is a wide character and as such breaks the rule that all char's size is 1.
+This causes the column position on some lines to be wrong but will be ignored
+seeing as it is not worth the hassle and seemingly a fairly complex issue.

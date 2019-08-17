@@ -92,9 +92,10 @@ int main()
 
     int pos = 0;
     int line = 1;
-    int column = 1;
+    int column = 0;
     for (int i=0; i<=text.size; i++)
     {
+        column++;
         if (text.textarray[i] == '\n')
         {
             line++;
@@ -109,8 +110,10 @@ int main()
             }
         }
         pos++;
-        column++;
     }
+    printf("\n%d MATCHES FOUND IN TOTAL.\n", matches);
+    free(matchlist);
+    free(text.textarray);
     return 0;
 }
 
@@ -164,7 +167,8 @@ int find(void *container)
 
                 if (matches % 10 == 0)
                 {
-                    matchlist = realloc(matchlist, matches+10);
+                    int next = matches + 10;
+                    matchlist = realloc(matchlist, next*sizeof(int));
                 }
                 matchlist[matches] = position;
                 matches++;
@@ -190,7 +194,6 @@ int find(void *container)
     if (!runningthreads)
     {
         free(query);
-        free(characters);
     }
     return 0;
 }
