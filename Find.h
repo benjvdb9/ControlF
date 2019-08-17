@@ -12,8 +12,11 @@
 
     struct Interval
     {
+        int threadid;
         int start;
         int end;
+        char *textarray;
+        char *query;
     };
 
     struct TextObj

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sched.h>
+#include <string.h>
 #include <sys/wait.h>
 #include "Find.h"
 
@@ -11,8 +12,14 @@
 void createThread(void *message);
 int find(void *interval);
 
+int runningthreads;
+
+int matches;
+int *matchlist;
+
 int main()
 {
+    matchlist = malloc(10 * sizeof(int));
     int threads = 0;
     char term;
     char scanfbufferbin[100];
@@ -38,11 +45,21 @@ int main()
         }
         else
         {
+            runningthreads = threads;
             printf("Continuing with %d threads\n", threads);
         }
     }
 
     struct TextObj text = readFile("text.txt");
+
+    char *query = malloc(100);
+    printf("\nFind: ");
+
+    fgets(query, 100, stdin);
+
+    if (query[strlen(query) - 1] == '\n')
+        query[strlen(query) - 1] = '\0';
+
     int length = text.size / threads - 1;
     int rest     = text.size % threads;
 
@@ -50,6 +67,9 @@ int main()
     int endpos = -1;
     for (int i=0; i<threads; i++)
     {
+        struct Interval interval;
+        interval.threadid = 0;
+
         startpos = endpos + 1;
         endpos = startpos + length;
         if (rest > 0)
@@ -61,12 +81,35 @@ int main()
         struct Interval *malloc_container = 
         (struct Interval *) malloc(sizeof(struct Interval));
 
-        struct Interval interval;
         interval.start = startpos;
         interval.end   = endpos;
+        interval.textarray = text.textarray;
+        interval.query = query;
 
         malloc_container = &interval;
         createThread(malloc_container);
+    }
+
+    int pos = 0;
+    int line = 1;
+    int column = 1;
+    for (int i=0; i<=text.size; i++)
+    {
+        if (text.textarray[i] == '\n')
+        {
+            line++;
+            column =0;
+        }
+        for (int j=0; j<matches; j++)
+        {
+            if (matchlist[j] == pos)
+            {
+                printf("MATCH FOUND AT %d: LINE %d, COLUMN %d\n"
+                , pos, line, column);
+            }
+        }
+        pos++;
+        column++;
     }
     return 0;
 }
@@ -99,10 +142,55 @@ int find(void *container)
     struct Interval *interval;
     interval = (struct Interval *) container;
 
+    int id = interval->threadid;
     int start = interval->start;
     int end   = interval->end;
+    char *characters = interval->textarray;
+    char *query = interval->query;
 
-    printf("%d\n", start);
-    printf("%d\n", end);
+    char c;
+    int position;
+    int line = 1;
+    int queryindex = 0;
+    for(int pos =start; pos<=end; pos++)
+    {
+        c = characters[pos];
+        if (c == query[queryindex])
+        {
+            if(queryindex == strlen(query) - 1)
+            {
+                if (queryindex == 0) position = pos;
+                else queryindex = 0;
+
+                if (matches % 10 == 0)
+                {
+                    matchlist = realloc(matchlist, matches+10);
+                }
+                matchlist[matches] = position;
+                matches++;
+            }
+            else if (queryindex == 0)
+            {
+                position = pos;
+                queryindex++;
+            }
+            else
+            {
+                queryindex++;
+            }
+            if (pos == end) end++;
+        }
+        else
+        {
+            queryindex = 0;
+        }
+    }
+
+    runningthreads--;
+    if (!runningthreads)
+    {
+        free(query);
+        free(characters);
+    }
     return 0;
 }
