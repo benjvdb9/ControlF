@@ -1,0 +1,5 @@
+-Unable to look for words above 100 chars
+
+=> Problem solved by using fgets instead of scanf due to
+fgets innate overflow protection. Also allows for whitespaces!
+according to https://stackoverflow.com/questions/1247989/how-do-you-allow-spaces-to-be-entered-using-scanf

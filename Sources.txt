@@ -1,3 +1,6 @@
 Find.h:
 	https://stackoverflow.com/questions/4352768/how-do-i-declare-an-array-of-undefined-or-no-initial-size
 	https://www.geeksforgeeks.org/c-program-count-number-lines-file/
+	
+Find.c:
+	https://stackoverflow.com/questions/1247989/how-do-you-allow-spaces-to-be-entered-using-scanf

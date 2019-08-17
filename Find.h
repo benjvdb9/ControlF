@@ -20,28 +20,29 @@
     struct TextObj readFile(char filename[MAX_FILE_CHARS])
     {
         int size = 0;
-        int lines = 0;
+        int lines = 1;
         int buffer_size = 0;
 
         char c;
-        char *tempbuf  = NULL;
         char *textarray = NULL;
 
         FILE *fp = fopen(filename, "r");
-        if (fp == NULL){
+        if (fp == NULL)
+        {
             printf("Could not open file");
-        } else {
+        }
+        else
+        {
             for(c = getc(fp); c != EOF; c = getc(fp))
             {
-                if (size == buffer_size){
+                if (size == buffer_size)
+                {
                     buffer_size += 100;
-                    tempbuf = realloc(textarray, buffer_size);
-                    if (!tempbuf) fatal_error();
-                    textarray = tempbuf;
+                    textarray = realloc(textarray, buffer_size);
+                    if (!textarray) fatal_error();
                 }
-
+                
                 if (c == '\n') lines++;
-
                 textarray[size]= c;
                 ++size;
             }
