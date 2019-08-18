@@ -7,3 +7,8 @@ according to https://stackoverflow.com/questions/1247989/how-do-you-allow-spaces
 -é is a wide character and as such breaks the rule that all char's size is 1.
 This causes the column position on some lines to be wrong but will be ignored
 seeing as it is not worth the hassle and seemingly a fairly complex issue.
+
+-Cannot use the program to create a file. Set the mode on 0777 to allow everyone
+all the rights but on file creation it still does not allow permission to read 
+the file. Create a file with touch and then write into it afterwards.
+=>Problem solved by setting mode directly instead of using mode flags.

@@ -4,12 +4,17 @@
 
     #include <stdio.h>
     #include <stdlib.h>
+    #include <fcntl.h>
+    #include <unistd.h>
+    #include <sys/stat.h>
+    #include <sys/types.h>
 
     void fatal_error(void)
     {
-        printf("ERROR");
+        write(2, "ERROR", 36);
     };
 
+    //All the info available for a thead
     struct Interval
     {
         int threadid;
@@ -19,6 +24,7 @@
         char *query;
     };
 
+    //Basic text info given to main loop
     struct TextObj
     {
         int size;
@@ -26,42 +32,57 @@
         char *textarray;
     };
 
+    //Analizes a text and returns basic info struct
     struct TextObj readFile(char filename[MAX_FILE_CHARS])
     {
         int size = 0;
         int lines = 1;
-        int buffer_size = 0;
-
-        char c;
         char *textarray = NULL;
 
-        FILE *fp = fopen(filename, "r");
-        if (fp == NULL)
+        int fp = open(filename, O_RDONLY);
+        if (fp == -1)
         {
-            printf("Could not open file");
+            write(2, "Could not open file!", 20);
         }
         else
         {
-            for(c = getc(fp); c != EOF; c = getc(fp))
+            struct stat textstats;
+            stat(filename, &textstats);
+            size = textstats.st_size;
+
+            textarray = malloc(size);
+            read(fp, textarray, size);
+
+            for (int i=0; i<size; i++)
             {
-                if (size == buffer_size)
-                {
-                    buffer_size += 100;
-                    textarray = realloc(textarray, buffer_size);
-                    if (!textarray) fatal_error();
-                }
-                
-                if (c == '\n') lines++;
-                textarray[size]= c;
-                ++size;
+                if (textarray[i] == '\n') lines++;
             }
             
             struct TextObj filetext;
             filetext.size = size + 1;
             filetext.lines = lines;
             filetext.textarray = textarray;
+            close(fp);
             return filetext;
         }
     }
+
+    char* readInput()
+    {
+        char c;
+        int size;
+        char *input = malloc(10);
+        for (int i= 0; c != '\n'; i++)
+        {
+            read(0, &c, 1);
+            size = strlen(input);
+            if (size % 10 == 0)
+            {
+                input = realloc(input, size+10);
+            }
+            input[i] = c;
+        }
+        return input;
+    } 
 
 #endif /* HEADER_FILE */
