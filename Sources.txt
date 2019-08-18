@@ -9,3 +9,6 @@ Find.c:
 
 Threading.c:
 	http://sekrit.de/webdocs/c/beginners-guide-away-from-scanf.html
+
+SysCall.c:
+	https://stackoverflow.com/questions/47292714/read-and-write-files-open-read
